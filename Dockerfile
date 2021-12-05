@@ -1,72 +1,26 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: inventory
-  labels:
-    app: inventory
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: inventory
-  template:
-    metadata:
-      labels:
-        app: inventory
-    spec:
-      containers:
-        - name: inventory
-          image: githubtestingreg.azurecr.io/inventorymanagement
-          ports:
-            - containerPort: 80
-          resources:
-            limits:
-              cpu: "200m"
-              memory: 200Mi
-            requests:
-              cpu: "100m"
-              memory: 100Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: inventory
-  labels:
-    app: inventory
-spec:
-  ports:
-  - port: 8080
-    targetPort: 80
-  selector:
-    app: inventory
----
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
-metadata:
-  name: inventory-gateway
-spec:
-  selector:
-    istio: ingressgateway
-  servers:
-    - port:
-        number: 80
-        name: http-web
-        protocol: HTTP
-      hosts:
-        - "*"
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: inventory-vservice
-spec:
-  hosts:
-    - "*"
-  gateways:
-    - inventory-gateway
-  http:
-   - route:
-      - destination:
-          host: inventory
-          port:
-            number: 8080
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS base
+WORKDIR /app
+EXPOSE 80
+
+#ENV ASPNETCORE_URLS=http://+:80
+
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+# For more info, please refer to https://aka.ms/vscode-docker-dotnet-configure-containers
+#RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+#USER appuser
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
+WORKDIR /src
+COPY ["InventoryManagement.csproj", "./"]
+RUN dotnet restore "InventoryManagement.csproj"
+COPY . .
+WORKDIR "/src/."
+RUN dotnet build "InventoryManagement.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "InventoryManagement.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "InventoryManagement.dll"]
