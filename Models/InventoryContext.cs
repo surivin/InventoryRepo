@@ -14,7 +14,10 @@ namespace InventoryManagement.Models
             : base(options)
         {
         }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
 
+        }
         public virtual DbSet<Products> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

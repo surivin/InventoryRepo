@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using InventoryManagement.Models;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Azure.Identity;
 
 namespace InventoryManagement
 {
@@ -24,8 +26,28 @@ namespace InventoryManagement
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connection = Configuration.GetConnectionString("InventoryDatabase");
-            services.AddDbContext<InventoryContext>(options => options.UseSqlServer(connection));
+            // var connection = Configuration.GetConnectionString("InventoryDatabase");
+            // services.AddDbContext<InventoryContext>(options => 
+            // {
+            //     var sqlConnection = new SqlConnection(connection);
+            //     var credential = new DefaultAzureCredential();
+            //     var token = credential
+            //         .GetToken(new Azure.Core.TokenRequestContext(
+            //             new[] { "https://database.windows.net/.default" }));
+            //     sqlConnection.AccessToken = token.Token;
+            //     //return sqlConnection;
+            // });
+
+            services.AddDbContext<InventoryContext>(options =>
+            {
+                var dbConnection = new SqlConnection(Configuration.GetConnectionString("InventoryDatabase"))
+                {
+                    AccessToken = new DefaultAzureCredential().GetToken(new Azure.Core.TokenRequestContext(
+                         new[] { "https://database.windows.net/.default" })).Token
+                };
+                options.UseSqlServer(dbConnection);
+            });
+
 
             services.AddControllersWithViews();
         }
