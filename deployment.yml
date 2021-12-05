@@ -13,7 +13,7 @@ spec:
     metadata:
       labels:
         app: inventory
-        aadpodbinding: mymsi
+        aadpodidbinding: mymsi
     spec:
       containers:
         - name: inventory
