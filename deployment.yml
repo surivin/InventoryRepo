@@ -13,10 +13,14 @@ spec:
     metadata:
       labels:
         app: inventory
+        aadpodidbinding: mymsi
     spec:
       containers:
         - name: inventory
           image: githubtestingreg.azurecr.io/inventorymanagement
+          env:
+            - name: SUBSCRIPTION_ID
+              value: 3c47d766-d2f9-4d07-9df4-3536ba1fa932
           ports:
             - containerPort: 80
           resources:
