@@ -1,7 +1,7 @@
 
 on: [push]
 
-# Environment  variables available to all jobs and steps in this workflow
+# Environment variables available to all jobs and steps in this workflow
 env:
   REGISTRY_NAME: githubtestingreg.azurecr.io
   CLUSTER_NAME: my-kc
