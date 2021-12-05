@@ -40,10 +40,13 @@ namespace InventoryManagement
 
             services.AddDbContext<InventoryContext>(options =>
             {
+                var aT=new DefaultAzureCredential(
+                    new DefaultAzureCredentialOptions{ManagedIdentityClientId="4bf6a940-3706-4367-a834-9f99683d8d34"})
+                    .GetToken(new Azure.Core.TokenRequestContext(
+                         new[] { "https://database.windows.net/.default" })).Token;
                 var dbConnection = new SqlConnection(Configuration.GetConnectionString("InventoryDatabase"))
                 {
-                    AccessToken = new DefaultAzureCredential().GetToken(new Azure.Core.TokenRequestContext(
-                         new[] { "https://database.windows.net/.default" })).Token
+                    AccessToken = aT
                 };
                 options.UseSqlServer(dbConnection);
             });
