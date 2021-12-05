@@ -67,7 +67,7 @@ jobs:
     - uses: azure/k8s-deploy@v1
       with:
         manifests: |
-          Deployment.yml
+          deployment.yml
         images: | 
           ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
         imagepullsecrets: |
