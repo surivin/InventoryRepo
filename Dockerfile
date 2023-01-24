@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
 WORKDIR /app
 EXPOSE 80
-
+ 
 #ENV ASPNETCORE_URLS=http://+:80
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
